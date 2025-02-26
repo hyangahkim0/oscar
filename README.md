@@ -6,26 +6,22 @@ We believe there are many opportunities to reduce the
 amount of toil involved with maintaining open-source projects
 both large and small.
 
-The ability of large language models (LLMs) to do semantic analysis of
-natural language (such as issue reports or maintainer instructions)
-and to convert between natural language instructions and program code
-creates new opportunities for agents to interact more smoothly with people.
-LLMs will likely end up being only a small (but critical!) part of the picture;
-the bulk of an agent's actions will be executing standard, deterministic code.
+**Overview**
 
-Oscar differs from many development-focused uses of LLMs by not trying
-to augment or displace the code writing process at all.
-After all, writing code is the fun part of writing software.
-Instead, the idea is to focus on the not-fun parts, like processing incoming issues,
-matching questions to existing documentation, and so on.
+Oscar is an experimental project focused on reducing the toil of open-source maintainers by using automated agents. It leverages Large Language Models (LLMs) for natural language processing and integrates them with deterministic code to automate tasks like issue triage, documentation surfacing, and comment fixing. The project's goal is to create an extensible architecture for building intelligent agents that assist maintainers in their daily tasks. The first prototype, Gaby (Go AI Bot), operates within the Go issue tracker as @gabyhelp and serves as a proof-of-concept for the Oscar architecture.
 
-Oscar is very much an experiment. We don't know yet where it will go or what
-we will learn. Even so, our first prototype,
-the [@gabyhelp](https://github.com/gabyhelp) bot, has already had many
-[successful interactions in the Go issue tracker](https://github.com/golang/go/issues?q=label%3Agabywins).
+**Important Packages and Directories**
 
-For now, Oscar is being developed under the auspices of the Go project.
-At some point in the future it may (or may not) be spun out into a separate project.
+*   **internal/gaby:** Gaby is the core of the Oscar prototype, the Go AI Bot. It is designed to run in various environments, from personal servers to cloud deployments. The package implements the core functionality of the Gaby prototype, interacting with services like GitHub and LLMs.
+*   **internal/llm:** The llm package defines the interface for interacting with Large Language Models (LLMs). It provides abstractions for embedding documents into vectors and is a crucial component for tasks that involve semantic analysis.
+*   **internal/storage:** The storage package defines the interfaces for key-value and vector storage, which are essential for persisting data and performing searches. It includes implementations for in-memory and on-disk storage, providing flexibility for different environments.
+*   **internal/github:** The github package handles interactions with GitHub, including downloading the issue tracker state and performing actions like editing issues or comments, applying labels, or posting new comments.
+*   **internal/secret:** The secret package defines the interface for obtaining and managing secret keys required to access external services. It provides implementations for in-memory and disk-based storage, with future plans to expand to cloud-based secret storage services.
+*   **internal/httprr:** The httprr package provides an HTTP record/replay system designed to aid in testing. It allows for testing code that interacts with external network servers without relying on the servers being available.
+*   **internal/commentfix:** The commentfix package implements rules for automatically fixing new comments, including editing text, editing URLs, and automatically hyperlinking text.
+*   **internal/related:** The related package implements the logic for responding to new issues with related issues and documents.
+*   **internal/docs:** The docs package defines a common document format.
+*   **internal/embeddocs:** The embeddocs package is in charge of embedding documents into a vector.
 
 The rest of this README explains Oscar in more detail.
 
@@ -44,15 +40,6 @@ It is a non-goal to automate away coding.
 Instead we are focused on automating away maintainer toil.
 
 ## Approach
-
-Maintainer toil is not unique to the Go project, so we are aiming to build
-an architecture that any software project can reuse and extend,
-building their own agents customized to their project's needs.
-Hence Oscar: _open-source contributor agent architecture_.
-Exactly what that will mean is still something we are exploring.
-
-So far, we have identified three capabilities that will be an important part
-of Oscar:
 
  1. Indexing and surfacing related project context during
     contributor interactions.
